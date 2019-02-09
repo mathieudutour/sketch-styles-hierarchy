@@ -54,14 +54,15 @@ function deleteSharedStyles(isTextStyle, group, document) {
 
 export function onSelectionChanged(context) {
   if (!context.actionContext || !context.actionContext.oldSelection) {
-    return
+    return 'no old selection'
   }
 
-  if (
-    !context.actionContext.oldSelection.length ||
-    context.actionContext.oldSelection.length > 1
-  ) {
-    return
+  if (!context.actionContext.oldSelection.length) {
+    return 'no old selection'
+  }
+
+  if (context.actionContext.oldSelection.length > 1) {
+    return 'too big selection'
   }
 
   const oldSelection = sketch.fromNative(context.actionContext.oldSelection[0])
@@ -76,7 +77,7 @@ export function onSelectionChanged(context) {
     (parentPage.name !== TEXT_STYLES_PAGE &&
       parentPage.name !== LAYER_STYLES_PAGE)
   ) {
-    return
+    return 'ignoring because wrong page'
   }
 
   const isTextStyle = parentPage.name === TEXT_STYLES_PAGE
@@ -87,14 +88,14 @@ export function onSelectionChanged(context) {
     (!isTextStyle || oldSelection.type !== 'Text')
   ) {
     console.log(oldSelection.type)
-    return
+    return `ignoring because wrong type ${oldSelection.type}`
   }
 
   if (wasDeleted) {
     deleteSharedStyles(isTextStyle, oldSelection, document)
 
     updateLayout(document, getHierarchy(document, isTextStyle), isTextStyle)
-    return
+    return 'handled deleted'
   }
 
   const sharedStylesHierachy = getHierarchy(document, isTextStyle)
@@ -111,7 +112,7 @@ export function onSelectionChanged(context) {
 
     if (!previousParts) {
       sketch.UI.message('A group without styles inside is forbidden')
-      return
+      return 'A group without styles inside is forbidden'
     }
 
     if (!oldSelection.layers.find(l => l.name === ROOT_STYLE_NAME)) {
@@ -160,7 +161,7 @@ export function onSelectionChanged(context) {
       updateChildren(oldSelection.parent)
 
       updateLayout(document, sharedStylesHierachy, isTextStyle)
-      return
+      return 'handled new group'
     }
 
     if (
@@ -168,7 +169,7 @@ export function onSelectionChanged(context) {
       previousParts.every((p, i) => p === newParts[i])
     ) {
       // nothing changed
-      return
+      return 'nothing changed'
     }
 
     // we might have changed the name
@@ -190,7 +191,7 @@ export function onSelectionChanged(context) {
       sketch.UI.message(
         'probably means that 2 groups are called the same, bad!'
       )
-      return
+      return 'probably means that 2 groups are called the same, bad!'
     }
 
     // we need to find the group that changed
@@ -202,13 +203,13 @@ export function onSelectionChanged(context) {
     )
     if (childLeft.length > 1) {
       sketch.UI.message('too many children left!')
-      return
+      return 'too many children left!'
     }
     // it's been moved or renamed
     updateStyleNames(childLeft[0], newParts.join(' / '))
 
     updateLayout(document, getHierarchy(document, isTextStyle), isTextStyle)
-    return
+    return 'handle renamed group'
   }
 
   // now we are dealing with a proper layer
@@ -241,4 +242,5 @@ export function onSelectionChanged(context) {
   }
 
   updateLayout(document, getHierarchy(document, isTextStyle), isTextStyle)
+  return 'handle changed layer'
 }

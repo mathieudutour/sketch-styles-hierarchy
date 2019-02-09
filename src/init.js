@@ -17,9 +17,7 @@ const buildLayerHierarchy = (parent, name, hierarchy, isTextStyle) => {
   updateLayerHierarchy(artboard, hierarchy, isTextStyle)
 }
 
-export default function() {
-  const document = sketch.getSelectedDocument()
-
+export function main(document) {
   const textStylesPage =
     document.pages.find(p => p.name === TEXT_STYLES_PAGE) ||
     new sketch.Page({
@@ -47,4 +45,10 @@ export default function() {
     layerStylesHierachy,
     false
   )
+}
+
+export default function() {
+  const document = sketch.getSelectedDocument()
+
+  main(document)
 }
