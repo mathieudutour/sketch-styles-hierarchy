@@ -1,7 +1,7 @@
 {
   "name": "sketch-styles-hierarchy",
   "description": "Organize your shared styles using the layers list, create a hierarchy where children inherit properties from their parent.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "engines": {
     "sketch": ">=3.0"
   },
